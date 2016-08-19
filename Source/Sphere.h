@@ -25,6 +25,10 @@ bool Sphere::Hit(const Ray& r, float tMin, float tMax, HitRecord& rec) const
 {
     Vector3 oc = r.Origin() - center;
     
+    // NOTE @houser be drawn a conclusion from relationship between ray to sphere
+    // Dot((p-c), (p-c)) = R * R
+    // (p and c are vector, p is point on sphere c is center of sphere)
+    // (R is radius of sphere)
     float a = Dot(r.Direction(), r.Direction());
     float b = Dot(oc, r.Direction());
     float c = Dot(oc, oc) - radius * radius;
