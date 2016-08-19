@@ -8,31 +8,25 @@
 
 #include <iostream>
 #include <fstream>
-#include "Vector3.h"
-#include "Ray.h"
 
-bool HitSphere(const Vector3& center, float radius, const Ray& r)
-{
-    Vector3 oc = r.Origin() - center;
-    float a = Dot(r.Direction(), r.Direction());
-    float b = 2.0 * Dot(oc, r.Direction());
-    float c = Dot(oc, oc) - radius * radius;
-    float discriminant = b * b - 4 * a * c;
-    
-    return (discriminant > 0);
-}
+#include "Sphere.h"
+#include "HitableList.h"
+#include "float.h"
 
-Vector3 Color(const Ray& r)
+Vector3 Color(const Ray& r, Hitable* world)
 {
-    if (HitSphere(Vector3(0, 0, -1), 0.5f, r))
+    HitRecord rec;
+    if (world->Hit(r, 0.0, MAXFLOAT, rec))
     {
-        return Vector3(1, 0, 0);
+        return 0.5f * Vector3(rec.normal.X() + 1, rec.normal.Y() + 1, rec.normal.Z() + 1);
     }
-
-    Vector3 UnitDirection = UnitVector(r.Direction());
-    float t = 0.5f * (UnitDirection.Y() + 1.0f);
-    
-    return (1.0 - t) * Vector3(1.0f, 1.0f, 1.0f) + t * Vector3(0.5, 0.7, 1.0);
+    else
+    {
+        Vector3 UnitDirection = UnitVector(r.Direction());
+        float t = 0.5f * (UnitDirection.Y() + 1.0f);
+        
+        return (1.0 - t) * Vector3(1.0f, 1.0f, 1.0f) + t * Vector3(0.5, 0.7, 1.0);
+    }
 }
 
 int main(int argc, const char * argv[])
@@ -49,6 +43,11 @@ int main(int argc, const char * argv[])
     Vector3 Vertical(0.0f, 2.0f, 0.0f);
     Vector3 Origin(0.0f, 0.0f, 0.0f);
     
+    Hitable* list[2];
+    list[0] = new Sphere(Vector3(0, 0, -1), 0.5);
+    list[1] = new Sphere(Vector3(0, -100.5f, -1), 100);
+    Hitable* world = new HitableList(list, 2);
+    
     for (int j = ny - 1; j >= 0; --j)
     {
         for (int i = 0; i < nx; ++i)
@@ -57,7 +56,7 @@ int main(int argc, const char * argv[])
             float v = float(j) / float(ny);
             
             Ray r(Origin, LowerleftCorner + u * Horizontal + v * Vertical);
-            Vector3 col = Color(r);
+            Vector3 col = Color(r, world);
             
             int ir = int(255.99 * col.R());
             int ig = int(255.99 * col.G());
