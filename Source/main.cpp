@@ -31,6 +31,7 @@ Vector3 Color(const Ray& r)
 
     Vector3 UnitDirection = UnitVector(r.Direction());
     float t = 0.5f * (UnitDirection.Y() + 1.0f);
+    
     return (1.0 - t) * Vector3(1.0f, 1.0f, 1.0f) + t * Vector3(0.5, 0.7, 1.0);
 }
 
